@@ -6,10 +6,29 @@
 
 <fieldset>
   <div class="fieldrow">
-    <label>Total</label>
-    <i id="payments_ledger_total"></i>
+    <table id="payments_ledger_table" class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Created</th>
+          <th>Amount</th>
+          <th>Comment</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
   </div>
   <div class="fieldrow">
-    <table id="payments_ledger_table" class="table"></table>
+    <label>Balance</label>
+    <i id="payments_ledger_balance"></i>
+  </div>
+</fieldset>
+
+<h2 hidden class="payments_admin">Administration<h2>
+
+<fieldset hidden class="payments_admin">
+  <div class="fieldrow">
+    <a class="add button">Add Compensation</a>
+    <a class="add button">Make Payment</a>
   </div>
 </fieldset>

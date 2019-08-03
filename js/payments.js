@@ -11,6 +11,10 @@ OBModules.Payments = new function () {
     OB.UI.replaceMain('modules/payments/payments.html');
 
     OBModules.Payments.ledgerOverview();
+
+    if (OB.Settings.permissions.includes('payments_module')) {
+      $('.payments_admin').show();
+    }
   }
 
   /******************************
@@ -25,11 +29,19 @@ OBModules.Payments = new function () {
         return false;
       }
 
-      var total = 0.00;
+      var balance = 0.00;
       $.each(response.data, function (i, transaction) {
-        total  = total + transaction.amount;
+        balance = balance + parseFloat(transaction.amount);
+
+        $html = $('<tr/>');
+        $html.append($('<td/>').text(transaction.id));
+        $html.append($('<td/>').text(format_timestamp(transaction.created)));
+        $html.append($('<td/>').text(transaction.amount));
+        $html.append($('<td/>').text(transaction.comment));
+
+        $('#payments_ledger_table tbody').append($html);
       });
-      $('#payments_ledger_total').html('$' + total);
+      $('#payments_ledger_balance').html('$' + balance);
     });
   }
 }
