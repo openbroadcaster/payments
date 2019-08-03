@@ -4,7 +4,7 @@ OBModules.Payments = new function () {
   }
 
   this.initMenu = function () {
-    OB.UI.addSubMenuItem('admin', 'Payments', 'payments', OBModules.Payments.open, 150, 'payments_module');
+    OB.UI.addSubMenuItem('admin', 'Payments', 'payments', OBModules.Payments.open, 150);
   }
 
   this.open = function () {
@@ -21,13 +21,19 @@ OBModules.Payments = new function () {
   * PERSONAL LEDGER FUNCTIONALITY
   ******************************/
 
-  this.ledgerOverview = function () {
-    OB.API.post('payments', 'ledger_overview', {}, function (response) {
+  this.ledgerOverview = function (user_id = null) {
+    post = {};
+    if (user_id != null) post.user_id = user_id;
+
+    OB.API.post('payments', 'ledger_overview', post, function (response) {
       var msg_result = (response.status) ? 'success' : 'error';
       if (!response.status) {
         $('#payments_message').obWidget(msg_result, response.msg);
         return false;
       }
+
+      $('#payments_ledger_table tbody').empty();
+      $('#payments_ledger_balance').html('$0.00');
 
       var balance = 0.00;
       $.each(response.data, function (i, transaction) {
@@ -41,7 +47,13 @@ OBModules.Payments = new function () {
 
         $('#payments_ledger_table tbody').append($html);
       });
+
       $('#payments_ledger_balance').html('$' + balance);
     });
+  }
+
+  this.ledgerSwitch = function () {
+    OBModules.Payments.ledgerOverview($('#payments_ledger_user ob-user:first').attr('data-id'));
+    $('#payments_ledger_user').val([]);
   }
 }

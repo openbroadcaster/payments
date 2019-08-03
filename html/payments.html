@@ -2,6 +2,15 @@
 
 <obwidget id="payments_message" type="message"></obwidget>
 
+<h2 hidden class="payments_admin">Administration<h2>
+
+<fieldset hidden class="payments_admin">
+  <div class="fieldrow">
+    <button class="add">Add Transaction</button>
+    <ob-user-input id="payments_ledger_user" onchange="OBModules.Payments.ledgerSwitch()"></ob-user-input>
+  </div>
+</fieldset>
+
 <h2>Ledger</h2>
 
 <fieldset>
@@ -21,14 +30,5 @@
   <div class="fieldrow">
     <label>Balance</label>
     <i id="payments_ledger_balance"></i>
-  </div>
-</fieldset>
-
-<h2 hidden class="payments_admin">Administration<h2>
-
-<fieldset hidden class="payments_admin">
-  <div class="fieldrow">
-    <a class="add button">Add Compensation</a>
-    <a class="add button">Make Payment</a>
   </div>
 </fieldset>
