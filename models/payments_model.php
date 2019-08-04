@@ -17,7 +17,8 @@ class PaymentsModel extends OBFModel {
 
   public function transaction_validate ($data) {
     if (!isset($data['user_id']) || !isset($data['type'])
-    || !isset($data['amount']) || !isset($data['created'])) {
+    || !isset($data['amount']) || !isset($data['created'])
+    || !isset($data['comment'])) {
       return [false, 'One or more fields not set.'];
     }
 
@@ -49,7 +50,7 @@ class PaymentsModel extends OBFModel {
       'user_id' => $data['user_id'],
       'created' => $data['created'],
       'amount'  => $amount,
-      'comment' => '<placeholder comment>'
+      'comment' => $data['comment']
     ));
 
     if (!$result) {

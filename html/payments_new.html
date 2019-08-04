@@ -27,6 +27,11 @@
   </div>
 
   <div class="fieldrow">
+    <label>Comment</label>
+    <ob-html-input id="payments_new_comment" rows="5"></ob-html-input>
+  </div>
+
+  <div class="fieldrow">
     <input id="payments_new_user_id" type="hidden">
     <button class="add" onclick="OBModules.Payments.transactionAdd()">Add Transaction</button>
     <button onclick="OB.UI.closeModalWindow()">Close</button>

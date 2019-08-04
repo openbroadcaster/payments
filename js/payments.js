@@ -44,7 +44,7 @@ OBModules.Payments = new function () {
         $html = $('<tr/>');
         $html.append($('<td/>').text(transaction.id));
         $html.append($('<td/>').text(format_timestamp(transaction.created).slice(0, 10)));
-        $html.append($('<td/>').text(transaction.comment));
+        $html.append($('<td/>').html(transaction.comment));
         $html.append($('<td/>').text(transaction.amount));
         $html.append($('<td/>').text('$' + parseFloat(balance).toFixed(2)));
 
@@ -89,6 +89,7 @@ OBModules.Payments = new function () {
     post.type    = $('#payments_new_type').val();
     post.amount  = $('#payments_new_amount').val();
     post.created = new Date($('#payments_new_date').val()).getTime() / 1000;
+    post.comment = $('#payments_new_comment').val();
 
     console.log(post.created);
 
