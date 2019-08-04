@@ -6,7 +6,8 @@
 
 <fieldset hidden class="payments_admin">
   <div class="fieldrow">
-    <button class="add">Add Transaction</button>
+    <input id="payments_ledger_id" type="hidden">
+    <button class="add" onclick="OBModules.Payments.transactionNew()">Add Transaction</button>
     <ob-user-input id="payments_ledger_user" onchange="OBModules.Payments.ledgerSwitch()"></ob-user-input>
   </div>
 </fieldset>
@@ -14,21 +15,28 @@
 <h2>Ledger</h2>
 
 <fieldset>
+  <div hidden class="payments_admin fieldrow">
+    <label>Selected User</label>
+    <span id="payments_ledger_selected"></span>
+  </div>
+
+  <div class="fieldrow">
+    <label>Balance</label>
+    <i id="payments_ledger_balance"></i>
+  </div>
+
   <div class="fieldrow">
     <table id="payments_ledger_table" class="table">
       <thead>
         <tr>
           <th>ID</th>
           <th>Created</th>
-          <th>Amount</th>
           <th>Comment</th>
+          <th>Amount</th>
+          <th>Balance</th>
         </tr>
       </thead>
       <tbody></tbody>
     </table>
-  </div>
-  <div class="fieldrow">
-    <label>Balance</label>
-    <i id="payments_ledger_balance"></i>
   </div>
 </fieldset>

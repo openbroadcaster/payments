@@ -14,6 +14,8 @@ OBModules.Payments = new function () {
 
     if (OB.Settings.permissions.includes('payments_module')) {
       $('.payments_admin').show();
+      $('#payments_ledger_id').val(OB.Account.user_id);
+      OBModules.Payments.showUserInfo(OB.Account.user_id, '#payments_ledger_selected', '#payments_message');
     }
   }
 
@@ -41,19 +43,81 @@ OBModules.Payments = new function () {
 
         $html = $('<tr/>');
         $html.append($('<td/>').text(transaction.id));
-        $html.append($('<td/>').text(format_timestamp(transaction.created)));
-        $html.append($('<td/>').text(transaction.amount));
+        $html.append($('<td/>').text(format_timestamp(transaction.created).slice(0, 10)));
         $html.append($('<td/>').text(transaction.comment));
+        $html.append($('<td/>').text(transaction.amount));
+        $html.append($('<td/>').text('$' + parseFloat(balance).toFixed(2)));
 
         $('#payments_ledger_table tbody').append($html);
       });
 
-      $('#payments_ledger_balance').html('$' + balance);
+      /* Reverse rows so we the most recent transactions show up first. We need
+      to start with the oldest transactions to calculate the balance over time. */
+      var $html = $('#payments_ledger_table tbody');
+      $html.html($('tr', $html).get().reverse());
+
+      $('#payments_ledger_balance').html('$' + parseFloat(balance).toFixed(2));
     });
   }
 
   this.ledgerSwitch = function () {
-    OBModules.Payments.ledgerOverview($('#payments_ledger_user ob-user:first').attr('data-id'));
+    var user_id = $('#payments_ledger_user ob-user:first').attr('data-id');
+
+    OBModules.Payments.ledgerOverview(user_id);
+    OBModules.Payments.showUserInfo(user_id, '#payments_ledger_selected', '#payments_message');
+    $('#payments_ledger_id').val(user_id);
+
     $('#payments_ledger_user').val([]);
+  }
+
+  /**************************
+  * TRANSACTION FUNCTIONALITY
+  **************************/
+
+  this.transactionNew = function () {
+    OB.UI.openModalWindow('modules/payments/payments_new.html');
+
+    var user_id = $('#payments_ledger_id').val();
+    $('#payments_new_date').datepicker({ dateFormat: "yy-mm-dd" });
+    OBModules.Payments.showUserInfo(user_id, '#payments_new_user', '#payments_new_message');
+    $('#payments_new_user_id').val(user_id);
+  }
+
+  this.transactionAdd = function () {
+    var post = {};
+    post.user_id = $('#payments_new_user_id').val();
+    post.type    = $('#payments_new_type').val();
+    post.amount  = $('#payments_new_amount').val();
+    post.created = new Date($('#payments_new_date').val()).getTime() / 1000;
+
+    console.log(post.created);
+
+    OB.API.post('payments', 'transaction_add', post, function (response) {
+      var msg_result = (response.status) ? 'success' : 'error';
+      if (!response.status) {
+        $('#payments_new_message').obWidget(msg_result, response.msg);
+        return false;
+      }
+
+      OB.UI.closeModalWindow();
+      OBModules.Payments.ledgerOverview(post.user_id);
+      $('#payments_message').obWidget(msg_result, response.msg);
+    })
+  }
+
+  /******************
+  * UTILITY FUNCTIONS
+  ******************/
+
+  this.showUserInfo = function (user_id, elem, msg_widget) {
+    OB.API.post('payments', 'get_user_data', {user_id: user_id}, function (response) {
+      var msg_result = (response.status) ? 'success' : 'error';
+      if (!response.status) {
+        $(msg_widget).obWidget(msg_result, response.msg);
+        return false;
+      }
+
+      $(elem).text(response.data.name + ' <' + response.data.email + '>');
+    });
   }
 }
