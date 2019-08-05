@@ -21,7 +21,7 @@ class PaymentsModule extends OBFModule {
     $this->db->query('CREATE TABLE IF NOT EXISTS `module_payments_transactions` (
       `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
       `user_id` int(11) unsigned NOT NULL,
-      `created` int(11) unsigned NOT NULL,
+      `created` date NOT NULL,
       `amount` decimal(13, 2) NOT NULL,
       `comment` text,
       PRIMARY KEY (`id`)

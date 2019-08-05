@@ -9,22 +9,39 @@ class PaymentsModel extends OBFModel {
       $user_id = $data['user_id'];
     }
 
-    $this->db->where('user_id', $user_id);
-    $result = $this->db->get('module_payments_transactions');
+    $this->db->query('SELECT * FROM `module_payments_transactions` WHERE `user_id` = '
+      . $user_id . ' ORDER BY `created` ASC, `id` ASC;');
+    $result = $this->db->assoc_list();
 
     return [true, 'Successfully loaded ledger overview.', $result];
   }
 
-  public function transaction_validate ($data) {
-    if (!isset($data['user_id']) || !isset($data['type'])
-    || !isset($data['amount']) || !isset($data['created'])
-    || !isset($data['comment'])) {
+  public function transaction_validate ($data, $type) {
+    if (!isset($data['type']) || !isset($data['amount'])
+    || !isset($data['created']) || !isset($data['comment'])) {
       return [false, 'One or more fields not set.'];
     }
 
-    $user_model = $this->load->model('users');
-    if (!$user_model('get_by_id', $data['user_id'])) {
-      return [false, 'Unable to find user ID.'];
+    if ($type == 'add') {
+      if (!isset($data['user_id'])) {
+        return [false, 'User ID required.'];
+      }
+
+      $user_model = $this->load->model('users');
+      if (!$user_model('get_by_id', $data['user_id'])) {
+        return [false, 'Unable to find user ID.'];
+      }
+    }
+
+    if ($type == 'edit') {
+      if (!isset($data['transaction_id'])) {
+        return [false, 'Transaction ID required.'];
+      }
+
+      $this->db->where('id', $data['transaction_id']);
+      if (!$this->db->get_one('module_payments_transactions')) {
+        return [false, 'Unable to find transaction ID.'];
+      }
     }
 
     if ($data['type'] != 'compensation' && $data['type'] != 'payment') {
@@ -35,8 +52,8 @@ class PaymentsModel extends OBFModel {
       return [false, 'Negative values not allowed in amount field.'];
     }
 
-    if (!is_numeric($data['created']) || $data['created'] < 0) {
-      return [false, 'Creation date needs to be a valid timestamp.'];
+    if (date('Y-m-d', strtotime($data['created'])) != $data['created']) {
+      return [false, 'Creation date needs to be a valid date.'];
     }
 
     return [true, 'Transaction input validated.'];
@@ -58,6 +75,47 @@ class PaymentsModel extends OBFModel {
     }
 
     return [true, 'Successfully added transaction.'];
+  }
+
+  public function transaction_get ($data) {
+    $this->db->where('id', $data['id']);
+    $result = $this->db->get_one('module_payments_transactions');
+
+    if (!$result) {
+      return [false, 'Failed to load transaction.'];
+    }
+
+    return [true, 'Successfully loaded transaction.', $result];
+  }
+
+  public function transaction_edit ($data) {
+    $modifier = ($data['type'] == 'compensation') ? '1' : '-1';
+    $amount = $data['amount'] * $modifier;
+
+    $this->db->where('id', $data['transaction_id']);
+    $result = $this->db->update('module_payments_transactions', array(
+      'created' => $data['created'],
+      'amount'  => $amount,
+      'comment' => $data['comment']
+    ));
+
+    if (!$result) {
+      return [false, 'An unknown error occurred trying to update transaction in the database.'];
+    }
+
+    return [true, 'Successfully updated transaction.'];
+  }
+
+  public function transaction_delete ($data) {
+    $this->db->where('id', $data['id']);
+    if (!$this->db->get_one('module_payments_transactions')) {
+        return [false, 'Transaction ID does not exist.'];
+    }
+
+    $this->db->where('id', $data['id']);
+    $this->db->delete('module_payments_transactions');
+
+    return [true, 'Successfully deleted transaction.'];
   }
 
   public function get_user_data ($data) {

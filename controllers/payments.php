@@ -18,12 +18,45 @@ class Payments extends OBFController {
   }
 
   public function transaction_add () {
-    $validate = $this->model('transaction_validate', $this->data);
+    if (!$this->user->check_permission('payments_module')) {
+      return [false, 'User is not allowed to add transactions.'];
+    }
+
+    $validate = $this->model('transaction_validate', $this->data, 'add');
     if (!$validate[0]) {
       return $validate;
     }
 
     return $this->model('transaction_add', $this->data);
+  }
+
+  public function transaction_get () {
+    if (!$this->user->check_permission('payments_module')) {
+      return [false, 'User is not allowed to request individual transaction information.'];
+    }
+
+    return $this->model('transaction_get', $this->data);
+  }
+
+  public function transaction_edit () {
+    if (!$this->user->check_permission('payments_module')) {
+      return [false, 'User is not allowed to edit transactions.'];
+    }
+
+    $validate = $this->model('transaction_validate', $this->data, 'edit');
+    if (!$validate[0]) {
+      return $validate;
+    }
+
+    return $this->model('transaction_edit', $this->data);
+  }
+
+  public function transaction_delete () {
+    if (!$this->user->check_permission('payments_module')) {
+      return [false, 'User is not allowed to delete transactions.'];
+    }
+
+    return $this->model('transaction_delete', $this->data);
   }
 
   public function get_user_data () {

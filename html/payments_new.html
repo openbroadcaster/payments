@@ -1,4 +1,4 @@
-<h2>Add Transaction</h2>
+<h2 id="payments_new_header">Add Transaction</h2>
 
 <obwidget id="payments_new_message" type="message"></obwidget>
 
@@ -9,7 +9,7 @@
   </div>
 
   <div class="fieldrow">
-    <label>Type</label>
+    <label class="required">Type</label>
     <select id="payments_new_type">
       <option value="compensation">Compensation (increase balance)</option>
       <option value="payment">Payment (decrease balance)</option>
@@ -17,12 +17,12 @@
   </div>
 
   <div class="fieldrow">
-    <label>Amount</label>
-    <input id="payments_new_amount" type="number">
+    <label class="required">Amount</label>
+    <input id="payments_new_amount" type="number" placeholder="0.00" step="0.01">
   </div>
 
   <div class="fieldrow">
-    <label>Transaction Date</label>
+    <label class="required">Transaction Date</label>
     <input id="payments_new_date" type="text" size="10" maxlength="10">
   </div>
 
@@ -33,7 +33,8 @@
 
   <div class="fieldrow">
     <input id="payments_new_user_id" type="hidden">
-    <button class="add" onclick="OBModules.Payments.transactionAdd()">Add Transaction</button>
+    <input id="payments_new_transaction_id" type="hidden">
+    <button id="payments_new_add_button" class="add" onclick="OBModules.Payments.transactionAdd()">Add Transaction</button>
     <button onclick="OB.UI.closeModalWindow()">Close</button>
   </div>
 </fieldset>
