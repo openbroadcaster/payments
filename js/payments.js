@@ -4,7 +4,7 @@ OBModules.Payments = new function () {
   }
 
   this.initMenu = function () {
-    OB.UI.addSubMenuItem('admin', 'Payments', 'payments', OBModules.Payments.open, 150);
+    OB.UI.addSubMenuItem('account', 'Payments', 'payments', OBModules.Payments.open, 5);
   }
 
   this.open = function () {
@@ -45,8 +45,12 @@ OBModules.Payments = new function () {
         $html.append($('<td/>').text(transaction.id));
         $html.append($('<td/>').text(transaction.created));
         $html.append($('<td/>').html(transaction.comment));
-        $html.append($('<td/>').text(transaction.amount));
-        $html.append($('<td/>').text('$' + parseFloat(balance).toFixed(2)));
+        
+        var amount_string = (transaction.amount < 0 ? '-' : '') + '$' + Math.abs(transaction.amount).toFixed(2);
+        var balance_string = (balance < 0 ? '-' : '') + '$' + Math.abs(balance).toFixed(2);
+
+        $html.append($('<td/>').text(amount_string));
+        $html.append($('<td/>').text(balance_string));
 
         if (OB.Settings.permissions.includes('payments_module')) {
           $edit = '<button class="edit" onclick="OBModules.Payments.transactionEdit(' + transaction.id + ')">Edit</button>';
@@ -105,7 +109,7 @@ OBModules.Payments = new function () {
       }
 
       $('#payments_new_type').val((response.data.amount < 0) ? 'payment' : 'compensation');
-      $('#payments_new_amount').val(Math.abs(response.data.amount));
+      $('#payments_new_amount').val(Math.abs(response.data.amount).toFixed(2));
       $('#payments_new_date').val(response.data.created);
       $('#payments_new_comment').val(response.data.comment);
     });

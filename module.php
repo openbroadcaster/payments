@@ -12,8 +12,8 @@ class PaymentsModule extends OBFModule {
 
     // Add module permissions to database.
     $this->db->insert('users_permissions', array(
-      'category'    => 'administration',
-      'description' => 'payments module',
+      'category'    => 'payments',
+      'description' => 'manage payments',
       'name'        => 'payments_module'
     ));
 
