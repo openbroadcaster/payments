@@ -4,13 +4,14 @@ class PaymentsModel extends OBFModel {
 
   public function ledger_overview ($data) {
     if (!isset($data['user_id'])) {
-      $user_id = $this->user->param('id');
+      $where = 'WHERE `user_id` = ' . $this->db->escape($this->user->param('id'));
+    } else if ($data['user_id'] == 'all') {
+      $where = '';
     } else {
-      $user_id = $data['user_id'];
+      $where = 'WHERE `user_id` = ' . $this->db->escape($data['user_id']);
     }
 
-    $this->db->query('SELECT * FROM `module_payments_transactions` WHERE `user_id` = '
-      . $user_id . ' ORDER BY `created` ASC, `id` ASC;');
+    $this->db->query('SELECT * FROM `module_payments_transactions` ' . $where . ' ORDER BY `created` ASC, `id` ASC;');
     $result = $this->db->assoc_list();
 
     return [true, 'Successfully loaded ledger overview.', $result];

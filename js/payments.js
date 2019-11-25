@@ -45,7 +45,7 @@ OBModules.Payments = new function () {
         $html.append($('<td/>').text(transaction.id));
         $html.append($('<td/>').text(transaction.created));
         $html.append($('<td/>').html(transaction.comment));
-        
+
         var amount_string = (transaction.amount < 0 ? '-' : '') + '$' + Math.abs(transaction.amount).toFixed(2);
         var balance_string = (balance < 0 ? '-' : '') + '$' + Math.abs(balance).toFixed(2);
 
@@ -77,7 +77,6 @@ OBModules.Payments = new function () {
     OBModules.Payments.showUserInfo(user_id, '#payments_ledger_selected', '#payments_message');
     $('#payments_ledger_id').val(user_id);
 
-    $('#payments_ledger_user').val([]);
   }
 
   /**************************
@@ -169,6 +168,12 @@ OBModules.Payments = new function () {
   ******************/
 
   this.showUserInfo = function (user_id, elem, msg_widget) {
+    if (user_id == 'all') {
+      //T All Users
+      $(elem).text(OB.t('All Users'));
+      return false;
+    }
+
     OB.API.post('payments', 'get_user_data', {user_id: user_id}, function (response) {
       var msg_result = (response.status) ? 'success' : 'error';
       if (!response.status) {
