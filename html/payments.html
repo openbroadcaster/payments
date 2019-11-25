@@ -6,9 +6,21 @@
 
 <fieldset hidden class="payments_admin">
   <div class="fieldrow">
-    <input id="payments_ledger_id" type="hidden">
-    <button class="add" onclick="OBModules.Payments.transactionNew()">Add Transaction</button>
+    <label>User</label>
     <ob-user-input id="payments_ledger_user" onchange="OBModules.Payments.ledgerSwitch()" data-all-option data-single></ob-user-input>
+  </div>
+  <div class="fieldrow">
+    <label>Start Date</label>
+    <input id="payments_filter_start" type="text" size="10" maxlength="10">
+  </div>
+  <div class="fieldrow">
+    <label>End Date</label>
+    <input id="payments_filter_end" type="text" size="10" maxlength="10">
+  </div>
+  <div class="fieldrow">
+    <input id="payments_ledger_id" type="hidden">
+    <button id="payments_transaction_add" class="add" onclick="OBModules.Payments.transactionNew()">Add Transaction</button>
+    <button class="edit" onclick="OBModules.Payments.ledgerFilter()">Filter Ledger</button>
   </div>
 </fieldset>
 

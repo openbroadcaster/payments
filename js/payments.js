@@ -11,6 +11,8 @@ OBModules.Payments = new function () {
     OB.UI.replaceMain('modules/payments/payments.html');
 
     OBModules.Payments.ledgerOverview();
+    $('#payments_filter_start').datepicker({ dateFormat: "yy-mm-dd" });
+    $('#payments_filter_end').datepicker({ dateFormat: "yy-mm-dd" });
 
     if (OB.Settings.permissions.includes('payments_module')) {
       $('.payments_admin').show();
@@ -23,7 +25,7 @@ OBModules.Payments = new function () {
   * PERSONAL LEDGER FUNCTIONALITY
   ******************************/
 
-  this.ledgerOverview = function (user_id = null) {
+  this.ledgerOverview = function (user_id = null, filters = {}) {
     post = {};
     if (user_id != null) post.user_id = user_id;
 
@@ -31,6 +33,13 @@ OBModules.Payments = new function () {
       $('.payments_field_user').show();
     } else {
       $('.payments_field_user').hide();
+    }
+
+    if (filters.start !== undefined) {
+      post.filter_start = filters.start;
+    }
+    if (filters.end !== undefined) {
+      post.filter_end = filters.end;
     }
 
     OB.API.post('payments', 'ledger_overview', post, function (response) {
@@ -63,7 +72,7 @@ OBModules.Payments = new function () {
         }
 
         if (OB.Settings.permissions.includes('payments_module')) {
-          $edit = '<button class="edit" onclick="OBModules.Payments.transactionEdit(' + transaction.id + ')">Edit</button>';
+          $edit = '<button class="edit" onclick="OBModules.Payments.transactionEdit(' + transaction.id + ', ' + transaction.user_id + ')">Edit</button>';
           $delete = '<button class="delete" onclick="OBModules.Payments.transactionDelete(' + transaction.id + ')">Delete</button>';
           $html.append($('<td/>').html($edit + $delete));
         }
@@ -80,9 +89,31 @@ OBModules.Payments = new function () {
     });
   }
 
+  this.ledgerFilter = function () {
+    var user_id = $('#payments_ledger_user ob-user:first').attr('data-id');
+    var filters = {};
+
+    if ($('#payments_filter_start').val() != '') {
+      filters.start = $('#payments_filter_start').val();
+    }
+    if ($('#payments_filter_end').val() != '') {
+      filters.end = $('#payments_filter_end').val();
+    }
+
+    OBModules.Payments.ledgerOverview(user_id, filters);
+  }
+
   this.ledgerSwitch = function () {
     var user_id = $('#payments_ledger_user ob-user:first').attr('data-id');
 
+    if (user_id == 'all') {
+      $('#payments_transaction_add').hide();
+    } else {
+      $('#payments_transaction_add').show();
+    }
+
+    $('#payments_filter_start').val('');
+    $('#payments_filter_end').val('');
     OBModules.Payments.ledgerOverview(user_id);
     OBModules.Payments.showUserInfo(user_id, '#payments_ledger_selected', '#payments_message');
     $('#payments_ledger_id').val(user_id);
@@ -93,17 +124,19 @@ OBModules.Payments = new function () {
   * TRANSACTION FUNCTIONALITY
   **************************/
 
-  this.transactionNew = function () {
+  this.transactionNew = function (all_id = null) {
     OB.UI.openModalWindow('modules/payments/payments_new.html');
 
     var user_id = $('#payments_ledger_id').val();
+    if (user_id == 'all') user_id = all_id;
+
     $('#payments_new_date').datepicker({ dateFormat: "yy-mm-dd" });
     OBModules.Payments.showUserInfo(user_id, '#payments_new_user', '#payments_new_message');
     $('#payments_new_user_id').val(user_id);
   }
 
-  this.transactionEdit = function (transaction_id) {
-    OBModules.Payments.transactionNew();
+  this.transactionEdit = function (transaction_id, user_id) {
+    OBModules.Payments.transactionNew(user_id);
 
     $('#payments_new_header').html('Edit Transaction');
     $('#payments_new_add_button').html('Edit Transaction');

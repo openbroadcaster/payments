@@ -4,15 +4,27 @@ class PaymentsModel extends OBFModel {
 
   public function ledger_overview ($data) {
     if (!isset($data['user_id'])) {
-      $where = 'WHERE `user_id` = ' . $this->db->escape($this->user->param('id'));
+      // $where = 'WHERE `user_id` = ' . $this->db->escape($this->user->param('id'));
+      $this->db->where('user_id', $this->user->param('id'));
     } else if ($data['user_id'] == 'all') {
-      $where = '';
+      // $where = '';
     } else {
-      $where = 'WHERE `user_id` = ' . $this->db->escape($data['user_id']);
+      // $where = 'WHERE `user_id` = ' . $this->db->escape($data['user_id']);
+      $this->db->where('user_id', $data['user_id']);
     }
 
-    $this->db->query('SELECT * FROM `module_payments_transactions` ' . $where . ' ORDER BY `created` ASC, `id` ASC;');
-    $result = $this->db->assoc_list();
+    if (isset($data['filter_start'])) {
+      $this->db->where('created', $data['filter_start'], '>=');
+    }
+    if (isset($data['filter_end'])) {
+      $this->db->where('created', $data['filter_end'], '<=');
+    }
+
+    $this->db->orderby('created', 'asc');
+    $result = $this->db->get('module_payments_transactions');
+
+    /* $this->db->query('SELECT * FROM `module_payments_transactions` ' . $where . ' ORDER BY `created` ASC, `id` ASC;');
+    $result = $this->db->assoc_list();*/
 
     foreach ($result as $id => $elem) {
       $this->db->what('username');
