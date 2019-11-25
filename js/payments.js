@@ -27,6 +27,12 @@ OBModules.Payments = new function () {
     post = {};
     if (user_id != null) post.user_id = user_id;
 
+    if (user_id == 'all') {
+      $('.payments_field_user').show();
+    } else {
+      $('.payments_field_user').hide();
+    }
+
     OB.API.post('payments', 'ledger_overview', post, function (response) {
       var msg_result = (response.status) ? 'success' : 'error';
       if (!response.status) {
@@ -51,6 +57,10 @@ OBModules.Payments = new function () {
 
         $html.append($('<td/>').text(amount_string));
         $html.append($('<td/>').text(balance_string));
+
+        if (user_id == 'all') {
+          $html.append($('<td/>').text(transaction.username).attr('data-id', transaction.user_id));
+        }
 
         if (OB.Settings.permissions.includes('payments_module')) {
           $edit = '<button class="edit" onclick="OBModules.Payments.transactionEdit(' + transaction.id + ')">Edit</button>';

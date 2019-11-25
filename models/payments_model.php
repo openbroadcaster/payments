@@ -14,6 +14,18 @@ class PaymentsModel extends OBFModel {
     $this->db->query('SELECT * FROM `module_payments_transactions` ' . $where . ' ORDER BY `created` ASC, `id` ASC;');
     $result = $this->db->assoc_list();
 
+    foreach ($result as $id => $elem) {
+      $this->db->what('username');
+      $this->db->where('id', $elem['user_id']);
+      $query = $this->db->get_one('users');
+
+      if (!$query) {
+        return [false, 'Failed to find one of the users in ledger table.'];
+      }
+
+      $result[$id]['username'] = $query['username'];
+    }
+
     return [true, 'Successfully loaded ledger overview.', $result];
   }
 
