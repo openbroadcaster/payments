@@ -17,6 +17,19 @@ class Payments extends OBFController {
     return $this->model('ledger_overview', $this->data);
   }
 
+  public function ledger_download () {
+    if (!$this->user->check_permission('payments_module')) {
+      return [false, 'User is not allowed to download ledgers.'];
+    }
+
+    $validate = $this->model('ledger_validate', $this->data);
+    if (!$validate[0]) {
+      return $validate;
+    }
+
+    return $this->model('ledger_download', $this->data);
+  }
+
   public function transaction_add () {
     if (!$this->user->check_permission('payments_module')) {
       return [false, 'User is not allowed to add transactions.'];

@@ -117,7 +117,32 @@ OBModules.Payments = new function () {
     OBModules.Payments.ledgerOverview(user_id);
     OBModules.Payments.showUserInfo(user_id, '#payments_ledger_selected', '#payments_message');
     $('#payments_ledger_id').val(user_id);
+  }
 
+  this.ledgerDownload = function () {
+    var user_id = ($('#payments_ledger_user ob-user:first').length == 0) ? OB.Account.user_id : $('#payments_ledger_user ob-user:first').attr('data-id');
+    var post = {
+      user_id: user_id,
+      start:   $('#payments_filter_start').val(),
+      end:     $('#payments_filter_end').val()
+    };
+
+    OB.API.post('payments', 'ledger_download', post, function (response) {
+      if (!response.status) {
+        $('#payments_message').obWidget('error', response.msg);
+        return false;
+      }
+
+      var data = new Blob([response.data], { type: 'application/octet-stream' });
+      var url  = URL.createObjectURL(data);
+      var file = 'ledger.csv';
+
+      $('#payments_ledger_file').attr({
+        href: url,
+        download: file
+      });
+      $('#payments_ledger_file').get(0).click();
+    });
   }
 
   /**************************

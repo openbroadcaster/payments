@@ -4,12 +4,8 @@ class PaymentsModel extends OBFModel {
 
   public function ledger_overview ($data) {
     if (!isset($data['user_id'])) {
-      // $where = 'WHERE `user_id` = ' . $this->db->escape($this->user->param('id'));
       $this->db->where('user_id', $this->user->param('id'));
-    } else if ($data['user_id'] == 'all') {
-      // $where = '';
-    } else {
-      // $where = 'WHERE `user_id` = ' . $this->db->escape($data['user_id']);
+    } else if ($data['user_id'] != 'all') {
       $this->db->where('user_id', $data['user_id']);
     }
 
@@ -22,9 +18,6 @@ class PaymentsModel extends OBFModel {
 
     $this->db->orderby('created', 'asc');
     $result = $this->db->get('module_payments_transactions');
-
-    /* $this->db->query('SELECT * FROM `module_payments_transactions` ' . $where . ' ORDER BY `created` ASC, `id` ASC;');
-    $result = $this->db->assoc_list();*/
 
     foreach ($result as $id => $elem) {
       $this->db->what('username');
@@ -39,6 +32,76 @@ class PaymentsModel extends OBFModel {
     }
 
     return [true, 'Successfully loaded ledger overview.', $result];
+  }
+
+  public function ledger_download ($data) {
+    if ($data['user_id'] != 'all') {
+      $this->db->where('user_id', $data['user_id']);
+    }
+
+    if (isset($data['start']) && $data['start'] != '') {
+      $this->db->where('created', $data['start'], '>=');
+    }
+    if (isset($data['end']) && $data['end'] != '') {
+      $this->db->where('created', $data['end'], '<=');
+    }
+
+    $this->db->orderby('created', 'asc');
+    $result = $this->db->get('module_payments_transactions');
+
+    $fh = fopen('php://temp', 'w+');
+    $headers = [
+      'ID',
+      'USER_ID',
+      'USERNAME',
+      'AMOUNT',
+      'CREATED',
+      'COMMENT'
+    ];
+    fputcsv($fh, $headers);
+
+    foreach ($result as $id => $elem) {
+      $this->db->what('username');
+      $this->db->where('id', $elem['user_id']);
+      $query = $this->db->get_one('users');
+
+      if (!$query) {
+        fclose($fh);
+        return [false, 'Failed to find one of the users in ledger table.'];
+      }
+
+      $line = [
+        $elem['id'],
+        $elem['user_id'],
+        $query['username'],
+        $elem['amount'],
+        $elem['created'],
+        $elem['comment']
+      ];
+      fputcsv($fh, $line);
+    }
+
+    $csv = stream_get_contents($fh, -1, 0);
+    fclose($fh);
+
+    return [true, 'Successfully loaded ledger CSV.', $csv];
+  }
+
+  public function ledger_validate ($data) {
+    $user_model = $this->load->model('users');
+    if ($data['user_id'] != 'all' && !$user_model('get_by_id', $data['user_id'])) {
+      return [false, 'Unable to find user ID.'];
+    }
+
+    if ($data['start'] != '' && date('Y-m-d', strtotime($data['start'])) != $data['start']) {
+      return [false, 'Start date needs to be a valid date.'];
+    }
+
+    if ($data['end'] != '' && date('Y-m-d', strtotime($data['end'])) != $data['end']) {
+      return [false, 'End date needs to be a valid date.'];
+    }
+
+    return [true, 'Ledger filters validated.'];
   }
 
   public function transaction_validate ($data, $type) {
