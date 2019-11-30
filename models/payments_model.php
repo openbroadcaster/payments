@@ -76,7 +76,7 @@ class PaymentsModel extends OBFModel {
         $query['username'],
         $elem['amount'],
         $elem['created'],
-        $elem['comment']
+        strip_tags($elem['comment'])
       ];
       fputcsv($fh, $line);
     }
