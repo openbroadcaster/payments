@@ -7,7 +7,8 @@ title: index
 {:toc}
 
 ## Payments module
-{:toc}
+
+![ Payments](img/payments.png ){: .Payments}
 
 Add eCommerce functionality, providing monetary incentive for users to complete media creation and management tasks.
 
@@ -21,5 +22,4 @@ Integrates with Task Tracker module.
 
 Add notes to payments
 
-![ Payments](img/payments.png ){: .Payments}
 
