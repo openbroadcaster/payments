@@ -3,10 +3,11 @@ layout: default
 title: index
 ---
 
+# Payments module
+{:.no_toc}
+
 * TOC
 {:toc}
-
-## Payments module
 
 ![ Payments](img/payments.png ){: .Payments}
 
